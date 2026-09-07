@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>ثبت اطلاعات انبار</title>
+<script src="https://tapi.bale.ai/miniapp.js?3"></script>
+<style>
+  :root{
+    --bg:#f4f6f8; --card:#ffffff; --line:#e3e7eb; --text:#1c2530; --muted:#6b7684;
+    --navy:#1e3a5f; --navy-d:#152a45; --green:#1f9d55; --red:#c0392b; --amber:#b8860b;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;}
+  body{padding-bottom:40px;}
+
+  header.top{
+    background:var(--navy);color:#fff;padding:14px 16px;
+    position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  header.top h1{margin:0;font-size:16px;font-weight:800;}
+  header.top p{margin:4px 0 0;font-size:12px;opacity:.85;}
+
+  #offlineNotice{
+    display:none;background:#fff3cd;color:#7a5b00;border-bottom:1px solid #f0d98a;
+    padding:8px 14px;font-size:12px;text-align:center;
+  }
+
+  .tabs{
+    display:flex;overflow-x:auto;gap:6px;padding:10px 10px 0;background:var(--bg);
+    position:sticky;top:62px;z-index:40;-webkit-overflow-scrolling:touch;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab-btn{
+    flex:0 0 auto;padding:9px 14px;border-radius:10px 10px 0 0;border:1px solid var(--line);
+    border-bottom:none;background:#e9edf1;color:var(--muted);font-size:13px;font-weight:700;
+    cursor:pointer;white-space:nowrap;
+  }
+  .tab-btn.active{background:var(--card);color:var(--navy);}
+
+  main{padding:14px;max-width:640px;margin:0 auto;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:0 12px 12px 12px;
+    padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;}
+  .field .hint{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:3px;}
+  .field select, .field input, .field textarea{
+    width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;
+    font-size:14px;background:#fbfcfd;color:var(--text);font-family:inherit;
+  }
+  .field select:focus, .field input:focus, .field textarea:focus{
+    outline:none;border-color:var(--navy);background:#fff;
+  }
+  .field textarea{resize:vertical;min-height:60px;}
+
+  .section-title{
+    font-size:12px;font-weight:800;color:var(--navy);margin:18px 0 10px;
+    padding-bottom:6px;border-bottom:2px solid var(--line);
+  }
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;}
+  @media (max-width:380px){.grid2{grid-template-columns:1fr;}}
+
+  .branch{display:none;}
+  .branch.active{display:block;}
+
+  .submit-btn{
+    width:100%;margin-top:8px;padding:14px;border:0;border-radius:10px;
+    background:var(--navy);color:#fff;font-weight:800;font-size:15px;cursor:pointer;
+  }
+  .submit-btn:active{background:var(--navy-d);}
+  .submit-btn:disabled{opacity:.6;}
+
+  .status-box{
+    display:none;margin-top:12px;padding:10px 12px;border-radius:9px;font-size:13px;font-weight:700;
+    text-align:center;
+  }
+  .status-box.ok{display:block;background:#e7f7ec;color:var(--green);border:1px solid #b9e6c6;}
+  .status-box.err{display:block;background:#fdecea;color:var(--red);border:1px solid #f3c1bb;}
+
+  .debug-box{
+    display:none;margin-top:12px;padding:10px;border-radius:9px;background:#fffbe8;
+    border:1px solid #f0e2a3;font-size:11px;color:#7a5b00;white-space:pre-wrap;
+    direction:ltr;text-align:left;max-height:220px;overflow:auto;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>ثبت اطلاعات انبار</h1>
+  <p>یکی از فرم‌های زیر را انتخاب و پر کن</p>
+</header>
+<div id="offlineNotice">این صفحه خارج از اپ بله باز شده - فرم برای تست UI کار می‌کند ولی ارسال واقعی فقط داخل بله انجام می‌شود.</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="amaliyat">عملکرد روزانه</button>
+  <button class="tab-btn" data-tab="tahvili">تحویلی انبار</button>
+  <button class="tab-btn" data-tab="markazi">خرید مرکزی</button>
+  <button class="tab-btn" data-tab="sajad">عملکرد سجاد</button>
+  <button class="tab-btn" data-tab="kharabi">آمار خرابی</button>
+</div>
+
+<main>
+
+  <!-- ===================== فرم ۱: عملکرد روزانه (عملیات) ===================== -->
+  <section class="panel active" id="panel-amaliyat">
+    <div class="card">
+      <form id="form-amaliyat">
+        <div class="field">
+          <label>نام اکیپ</label>
+          <select name="نام اکیپ" required></select>
+        </div>
+        <div class="field">
+          <label>ماه</label>
+          <select name="ماه" required></select>
+        </div>
+
+        <div class="section-title">شمارش کار انجام‌شده</div>
+        <div class="grid2" id="amaliyat-counts"></div>
+
+        <div class="section-title">متریال مصرفی</div>
+        <div class="grid2" id="amaliyat-materials"></div>
+
+        <div class="field">
+          <label>توضیحات <span class="hint">(اختیاری - علت عدم انجام کار)</span></label>
+          <textarea name="توضیحات- علت عدم انجام کار"></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">ثبت عملکرد روزانه</button>
+        <div class="status-box"></div>
+        <div class="debug-box"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== فرم ۲: انبار تحویلی ===================== -->
+  <section class="panel" id="panel-tahvili">
+    <div class="card">
+      <form id="form-tahvili">
+        <div class="field">
+          <label>ماه</label>
+          <select name="ماه" required></select>
+        </div>
+        <div class="field">
+          <label>نام اکیپ</label>
+          <select name="نام اکیپ" id="tahvili-team" required></select>
+        </div>
+
+        <div class="branch" id="tahvili-branch-a">
+          <div class="section-title">متریال تحویلی</div>
+          <div class="grid2" id="tahvili-a-fields"></div>
+          <div class="field">
+            <label>توضیحات <span class="hint">(اختیاری)</span></label>
+            <textarea name="توضیحات"></textarea>
+          </div>
+        </div>
+
+        <div class="branch" id="tahvili-branch-b">
+          <div class="section-title">متریال تحویلی (بهادر/سجاد)</div>
+          <p class="hint" style="margin:-4px 0 10px;">در صورت عدم تحویل، عدد ۰ را وارد کن.</p>
+          <div class="grid2" id="tahvili-b-fields"></div>
+        </div>
+
+        <button type="submit" class="submit-btn">ثبت انبار تحویلی</button>
+        <div class="status-box"></div>
+        <div class="debug-box"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== فرم ۳: خرید مرکزی ===================== -->
+  <section class="panel" id="panel-markazi">
+    <div class="card">
+      <form id="form-markazi">
+        <div class="field">
+          <label>ماه</label>
+          <select name="ماه" required></select>
+        </div>
+
+        <div class="section-title">متریال</div>
+        <div class="grid2" id="markazi-fields"></div>
+
+        <div class="field">
+          <label>توضیحات <span class="hint">(اختیاری)</span></label>
+          <textarea name="توضیحات"></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">ثبت خرید مرکزی</button>
+        <div class="status-box"></div>
+        <div class="debug-box"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== فرم ۴: عملکرد سجاد ===================== -->
+  <section class="panel" id="panel-sajad">
+    <div class="card">
+      <form id="form-sajad">
+        <div class="field">
+          <label>نام اکیپ</label>
+          <input type="text" name="نام اکیپ" value="سجاد محمد نژاد" disabled>
+          <input type="hidden" name="نام اکیپ" value="سجاد محمد نژاد">
+        </div>
+        <div class="field">
+          <label>ماه</label>
+          <select name="ماه" required></select>
+        </div>
+
+        <div class="section-title">متریال</div>
+        <div class="grid2" id="sajad-fields"></div>
+
+        <div class="field">
+          <label>توضیحات <span class="hint">(اختیاری)</span></label>
+          <textarea name="توضیحات"></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">ثبت عملکرد سجاد</button>
+        <div class="status-box"></div>
+        <div class="debug-box"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== فرم ۵: آمار خرابی ===================== -->
+  <section class="panel" id="panel-kharabi">
+    <div class="card">
+      <form id="form-kharabi">
+        <div class="field">
+          <label>مرکز</label>
+          <select name="مرکز" required></select>
+        </div>
+        <div class="field">
+          <label>ماه</label>
+          <select name="ماه" required></select>
+        </div>
+        <div class="field">
+          <label>نوع خرابی</label>
+          <select name="نوع خرابی" required></select>
+        </div>
+        <div class="field">
+          <label>تعداد</label>
+          <input type="text" inputmode="decimal" name="تعداد" required>
+        </div>
+        <div class="field">
+          <label>توضیحات <span class="hint">(اختیاری)</span></label>
+          <textarea name="توضیحات"></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">ثبت آمار خرابی</button>
+        <div class="status-box"></div>
+        <div class="debug-box"></div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =====================================================================
+   این فایل باید همیشه هم‌گام با BALE_FORM_COLUMNS و SOURCES در
+   auto_pipeline.py بماند: هر کلید فیلد اینجا باید عیناً همون متن ستون
+   اکسل باشه (فاصله‌های عجیب هم عمدی‌ان، مثل "میکرو فیبر 12" با فاصله
+   ولی "میکروفیبر 48" بدون فاصله - دقیقاً همینه که توی اکسل هست).
+   ===================================================================== */
+
+const MONTHS = ["مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+
+const TEAMS_AMALIYAT = [
+  "رحیمی- عمو هاشمی","داودمحمدی - سخندان","کارن دهقان","امیرباقری","شکوهی-یوسفی",
+  "عزیزی-غفوری","پرهام","قاسمی","ایکس","کریمی- نصیری","اسفندیاری","احمدی",
+  "عادل پویا- ارکانی","نعمتیان"
+];
+
+const TEAMS_TAHVILI = [
+  "رحیمی- عمو هاشمی","داودمحمدی - سخندان","کارن دهقان","امیرباقری","شکوهی-یوسفی",
+  "عزیزی-غفوری","پرهام","قاسمی","ایکس","کریمی- نصیری","احمدی","اسفندیاری",
+  "عادل پویا- ارکانی","نعمتیان","سجاد محمدنژآد","بهادر اصفهانی"
+];
+const TAHVILI_BRANCH_B_TEAMS = ["سجاد محمدنژآد","بهادر اصفهانی"];
+
+const KHARABI_CENTERS = ["کاظمی","کوثر","نصرآبادی","محور"];
+const KHARABI_TYPES = ["قطعی فیبر","خرابی اسپلایس","خرابی اسپلیتر","خرابی FAT","سایر"];
+
+const AMALIYAT_COUNTS = ["داخلی","بیرونی","فیوژن","کانفیگ"];
+const AMALIYAT_MATERIALS = [
+  "کابل 2 کر داخلی","کابل 2 کر بیرونی","کابل 4 کر بیرونی",
+  "اسپلیتر 1:2","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:16","اسپلیتر 1:32",
+  "پیگتیل","آداپتور تکی","آداپتور دوبل","FAT 12","FAT 24","FAT 48"
+];
+
+const TAHVILI_A_FIELDS = [
+  "کابل 2 کر داخلی (متر)","کابل 2 کر بیرونی (متر)","کابل 4 کر بیرونی (متر)",
+  "اسپلیتر 1:2","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:16","اسپلیتر 1:32",
+  "پیگتیل","آداپتور تکی","آداپتور دوبل","FAT 12","FAT 24","FAT 48"
+];
+const TAHVILI_B_FIELDS = [
+  "میکروداکت 4 کاناله","میکروداکت 7 کاناله",
+  "میکرو فیبر 12","میکرو فیبر 24","میکروفیبر 48","میکروفیبر 72",
+  "کابل 12 خاکی","کابل 24 خاکی","کابل 48 خاکی","کابل 72 خاکی","کابل 144 خاکی",
+  "کابل 12 کانالی","کابل 24 کانالی","کابل 48 کانالی","کابل 72 کانالی","کابل 144 کانالی",
+  "مفصل 12","مفصل 24","مفصل 48","مفصل 72","مفصل 144",
+  "سابداکت","لوله پلی اتیلن","لوله پست",
+  "FAT 12 (بهادر/سجاد)","FAT 24 (بهادر/سجاد)","FAT 48 (بهادر/سجاد)"
+];
+
+const MARKAZI_FIELDS = [
+  "کابل 2 کر داخلی (متر)","کابل 2 کر بیرونی (متر)","کابل 4 کر بیرونی (متر)",
+  "اسپلیتر 1:2","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:16","اسپلیتر 1:32",
+  "پیگتیل","آداپتور تکی","آداپتور دوبل","FAT 12","FAT 24","FAT 48",
+  "لوله پست","رزرو 1","رزرو 2",
+  "میکروداکت 4 کاناله","میکروداکت 7 کاناله",
+  "میکرو فیبر 12","میکرو فیبر 24","میکروفیبر 48","میکروفیبر 72",
+  "کابل 12 خاکی","کابل 24 خاکی","کابل 48 خاکی","کابل 72 خاکی","کابل 144 خاکی",
+  "کابل 12 کانالی","کابل 24 کانالی","کابل 48 کانالی","کابل 72 کانالی","کابل 144 کانالی",
+  "مفصل 12","مفصل 24","مفصل 48","مفصل 72","مفصل 144",
+  "سابداکت","لوله پلی اتیلن"
+];
+
+const SAJAD_FIELDS = ["پیگتیل","FAT 12","FAT 24","FAT 48","لوله پست","رزرو 1","رزرو 2"];
+
+/* ---------------------- ابزارهای عمومی ساخت فرم ---------------------- */
+
+function fillSelect(select, options, placeholder){
+  select.innerHTML = "";
+  const ph = document.createElement("option");
+  ph.value = ""; ph.textContent = placeholder || "انتخاب کن...";
+  ph.disabled = true; ph.selected = true;
+  select.appendChild(ph);
+  options.forEach(opt=>{
+    const o = document.createElement("option");
+    o.value = opt; o.textContent = opt;
+    select.appendChild(o);
+  });
+}
+
+function buildNumberFields(container, names){
+  container.innerHTML = "";
+  names.forEach(name=>{
+    const wrap = document.createElement("div");
+    wrap.className = "field";
+    wrap.innerHTML = `
+      <label>${name}</label>
+      <input type="text" inputmode="decimal" name="${name}" required>
+    `;
+    container.appendChild(wrap);
+  });
+}
+
+/* ---------------------- مقداردهی اولیه‌ی هر فرم ---------------------- */
+
+document.querySelectorAll('select[name="ماه"]').forEach(s => fillSelect(s, MONTHS, "ماه را انتخاب کن"));
+
+fillSelect(document.querySelector('#form-amaliyat select[name="نام اکیپ"]'), TEAMS_AMALIYAT, "اکیپ را انتخاب کن");
+buildNumberFields(document.getElementById("amaliyat-counts"), AMALIYAT_COUNTS);
+buildNumberFields(document.getElementById("amaliyat-materials"), AMALIYAT_MATERIALS);
+
+const tahviliTeamSelect = document.getElementById("tahvili-team");
+fillSelect(tahviliTeamSelect, TEAMS_TAHVILI, "اکیپ را انتخاب کن");
+buildNumberFields(document.getElementById("tahvili-a-fields"), TAHVILI_A_FIELDS);
+buildNumberFields(document.getElementById("tahvili-b-fields"), TAHVILI_B_FIELDS);
+
+function updateTahviliBranch(){
+  const isBranchB = TAHVILI_BRANCH_B_TEAMS.includes(tahviliTeamSelect.value);
+  const hasTeam = !!tahviliTeamSelect.value;
+  document.getElementById("tahvili-branch-a").classList.toggle("active", !isBranchB && hasTeam);
+  document.getElementById("tahvili-branch-b").classList.toggle("active", isBranchB);
+
+  // فیلدهای شاخه‌ی غیرفعال نباید required بمانند وگرنه فرم قابل ارسال نمی‌شود،
+  // و مقدار قدیمی‌شان هم باید پاک شود - وگرنه اگر کاربر اول یک اکیپ را پر کند
+  // و بعد اکیپش را عوض کند، مقدار قدیمیِ شاخه‌ی دیگر همراه ثبت جدید می‌رود.
+  document.querySelectorAll("#tahvili-a-fields input").forEach(i => {
+    i.required = !isBranchB && hasTeam;
+    if (isBranchB || !hasTeam) i.value = "";
+  });
+  document.querySelectorAll("#tahvili-b-fields input").forEach(i => {
+    i.required = isBranchB;
+    if (!isBranchB) i.value = "";
+  });
+}
+tahviliTeamSelect.addEventListener("change", updateTahviliBranch);
+updateTahviliBranch();
+
+buildNumberFields(document.getElementById("markazi-fields"), MARKAZI_FIELDS);
+buildNumberFields(document.getElementById("sajad-fields"), SAJAD_FIELDS);
+
+fillSelect(document.querySelector('#form-kharabi select[name="مرکز"]'), KHARABI_CENTERS, "مرکز را انتخاب کن");
+fillSelect(document.querySelector('#form-kharabi select[name="نوع خرابی"]'), KHARABI_TYPES, "نوع خرابی را انتخاب کن");
+
+/* ---------------------- تب‌ها ---------------------- */
+
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+/* ---------------------- ارسال به بله ---------------------- */
+
+const FORM_IDS = {
+  "form-amaliyat": "ورودی گوگل عملیات",
+  "form-tahvili": "ورودی گوگل تحویلی",
+  "form-markazi": "ورودی گوگل خرید مرکزی",
+  "form-sajad": "ورودی گوگل سجاد",
+  "form-kharabi": "ورودی گوگل خرابی",
+};
+
+const isInsideBale = !!(window.Bale && window.Bale.WebApp);
+if (!isInsideBale){
+  document.getElementById("offlineNotice").style.display = "block";
+}
+
+function nowStamp(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+document.querySelectorAll("form").forEach(form=>{
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const statusBox = form.querySelector(".status-box");
+    const debugBox = form.querySelector(".debug-box");
+    statusBox.className = "status-box";
+    debugBox.style.display = "none";
+
+    const formData = new FormData(form);
+    const fields = {};
+    formData.forEach((value, key)=>{ fields[key] = value; });
+
+    const payload = { __form__: FORM_IDS[form.id], "Timestamp": nowStamp(), ...fields };
+
+    if (isInsideBale){
+      try{
+        window.Bale.WebApp.sendData(JSON.stringify(payload));
+        statusBox.textContent = "✅ ثبت شد.";
+        statusBox.classList.add("ok");
+        setTimeout(()=>{ form.reset(); if(form.id==="form-tahvili") updateTahviliBranch(); statusBox.className="status-box"; }, 1200);
+      }catch(err){
+        statusBox.textContent = "❌ ارسال ناموفق بود: " + err.message;
+        statusBox.classList.add("err");
+      }
+    } else {
+      statusBox.textContent = "⚠️ خارج از بله - فقط پیش‌نمایش (پایین را ببین)، چیزی واقعاً ارسال نشد.";
+      statusBox.classList.add("err");
+      debugBox.style.display = "block";
+      debugBox.textContent = JSON.stringify(payload, null, 2);
+    }
+  });
+});
+</script>
+
+</body>
+</html>
