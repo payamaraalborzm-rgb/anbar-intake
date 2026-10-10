@@ -40,7 +40,9 @@ textarea,select,.nt{width:100%;border:1px solid var(--l);border-radius:8px;paddi
 </style></head><body>
 <header><b>ثبت اطلاعات</b><div class="dt"></div><small id="off" style="display:none">خارج از بله: فقط پیش‌نمایش، چیزی ارسال نمی‌شود.</small></header>
 <nav id="nav"></nav><main id="app"></main><div id="go"></div><div id="ov"></div><div id="ts"></div>
+<script id="dbg">window.onerror=function(m,u,l,c){var a=document.getElementById("app");if(a)a.innerHTML='<pre style="direction:ltr;white-space:pre-wrap;padding:12px;color:#b00;font-size:12px">Error: '+m+' ('+l+':'+c+')</pre>'};</script>
 <script>
+(function(){
 /* کلیدها باید عیناً با BALE_FORM_COLUMNS در auto_pipeline.py یکی باشند */
 const TEAMS=["رحیمی- عمو هاشمی","داودمحمدی - سخندان","کارن دهقان","امیرباقری","شکوهی-یوسفی","عزیزی-غفوری","پرهام","قاسمی","ایکس","کریمی- نصیری","اسفندیاری","احمدی","عادل پویا- ارکانی","نعمتیان","عرفان","طهماسبی","رضوی"];
 const TEAMS_T=TEAMS.concat(["سجاد محمد نژاد","بهادر اصفهانی"]),BB=["سجاد محمد نژاد","بهادر اصفهانی"],CFG_ONLY=["پرهام","قاسمی"];
@@ -227,4 +229,5 @@ function vAdmin(){
   }
 }
 if(ACT&&AD)vAdmin();else V();
+})();
 </script></body></html>
