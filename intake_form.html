@@ -1,462 +1,230 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>ثبت اطلاعات انبار</title>
+<html lang="fa" dir="rtl"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>ثبت اطلاعات</title>
 <script src="https://tapi.bale.ai/miniapp.js?3"></script>
 <style>
-  :root{
-    --bg:#f4f6f8; --card:#ffffff; --line:#e3e7eb; --text:#1c2530; --muted:#6b7684;
-    --navy:#1e3a5f; --navy-d:#152a45; --green:#1f9d55; --red:#c0392b; --amber:#b8860b;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
-    font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;}
-  body{padding-bottom:40px;}
-
-  header.top{
-    background:var(--navy);color:#fff;padding:14px 16px;
-    position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.15);
-  }
-  header.top h1{margin:0;font-size:16px;font-weight:800;}
-  header.top p{margin:4px 0 0;font-size:12px;opacity:.85;}
-
-  #offlineNotice{
-    display:none;background:#fff3cd;color:#7a5b00;border-bottom:1px solid #f0d98a;
-    padding:8px 14px;font-size:12px;text-align:center;
-  }
-
-  .tabs{
-    display:flex;overflow-x:auto;gap:6px;padding:10px 10px 0;background:var(--bg);
-    position:sticky;top:62px;z-index:40;-webkit-overflow-scrolling:touch;
-  }
-  .tabs::-webkit-scrollbar{display:none;}
-  .tab-btn{
-    flex:0 0 auto;padding:9px 14px;border-radius:10px 10px 0 0;border:1px solid var(--line);
-    border-bottom:none;background:#e9edf1;color:var(--muted);font-size:13px;font-weight:700;
-    cursor:pointer;white-space:nowrap;
-  }
-  .tab-btn.active{background:var(--card);color:var(--navy);}
-
-  main{padding:14px;max-width:640px;margin:0 auto;}
-  .panel{display:none;}
-  .panel.active{display:block;}
-
-  .card{background:var(--card);border:1px solid var(--line);border-radius:0 12px 12px 12px;
-    padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
-
-  .field{margin-bottom:14px;}
-  .field label{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;}
-  .field .hint{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:3px;}
-  .field select, .field input, .field textarea{
-    width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;
-    font-size:14px;background:#fbfcfd;color:var(--text);font-family:inherit;
-  }
-  .field select:focus, .field input:focus, .field textarea:focus{
-    outline:none;border-color:var(--navy);background:#fff;
-  }
-  .field textarea{resize:vertical;min-height:60px;}
-
-  .section-title{
-    font-size:12px;font-weight:800;color:var(--navy);margin:18px 0 10px;
-    padding-bottom:6px;border-bottom:2px solid var(--line);
-  }
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;}
-  @media (max-width:380px){.grid2{grid-template-columns:1fr;}}
-
-  .branch{display:none;}
-  .branch.active{display:block;}
-
-  .submit-btn{
-    width:100%;margin-top:8px;padding:14px;border:0;border-radius:10px;
-    background:var(--navy);color:#fff;font-weight:800;font-size:15px;cursor:pointer;
-  }
-  .submit-btn:active{background:var(--navy-d);}
-  .submit-btn:disabled{opacity:.6;}
-
-  .status-box{
-    display:none;margin-top:12px;padding:10px 12px;border-radius:9px;font-size:13px;font-weight:700;
-    text-align:center;
-  }
-  .status-box.ok{display:block;background:#e7f7ec;color:var(--green);border:1px solid #b9e6c6;}
-  .status-box.err{display:block;background:#fdecea;color:var(--red);border:1px solid #f3c1bb;}
-
-  .debug-box{
-    display:none;margin-top:12px;padding:10px;border-radius:9px;background:#fffbe8;
-    border:1px solid #f0e2a3;font-size:11px;color:#7a5b00;white-space:pre-wrap;
-    direction:ltr;text-align:left;max-height:220px;overflow:auto;
-  }
-</style>
-</head>
-<body>
-
-<header class="top">
-  <h1>ثبت اطلاعات انبار</h1>
-  <p>یکی از فرم‌های زیر را انتخاب و پر کن</p>
-</header>
-<div id="offlineNotice">این صفحه خارج از اپ بله باز شده - فرم برای تست UI کار می‌کند ولی ارسال واقعی فقط داخل بله انجام می‌شود.</div>
-
-<div class="tabs" id="tabs">
-  <button class="tab-btn active" data-tab="amaliyat">عملکرد روزانه</button>
-  <button class="tab-btn" data-tab="tahvili">تحویلی انبار</button>
-  <button class="tab-btn" data-tab="markazi">خرید مرکزی</button>
-  <button class="tab-btn" data-tab="sajad">عملکرد سجاد</button>
-  <button class="tab-btn" data-tab="kharabi">آمار خرابی</button>
-</div>
-
-<main>
-
-  <!-- ===================== فرم ۱: عملکرد روزانه (عملیات) ===================== -->
-  <section class="panel active" id="panel-amaliyat">
-    <div class="card">
-      <form id="form-amaliyat">
-        <div class="field">
-          <label>نام اکیپ</label>
-          <select name="نام اکیپ" required></select>
-        </div>
-        <div class="field">
-          <label>ماه</label>
-          <select name="ماه" required></select>
-        </div>
-
-        <div class="section-title">شمارش کار انجام‌شده</div>
-        <div class="grid2" id="amaliyat-counts"></div>
-
-        <div class="section-title">متریال مصرفی</div>
-        <div class="grid2" id="amaliyat-materials"></div>
-
-        <div class="field">
-          <label>توضیحات <span class="hint">(اختیاری - علت عدم انجام کار)</span></label>
-          <textarea name="توضیحات- علت عدم انجام کار"></textarea>
-        </div>
-
-        <button type="submit" class="submit-btn">ثبت عملکرد روزانه</button>
-        <div class="status-box"></div>
-        <div class="debug-box"></div>
-      </form>
-    </div>
-  </section>
-
-  <!-- ===================== فرم ۲: انبار تحویلی ===================== -->
-  <section class="panel" id="panel-tahvili">
-    <div class="card">
-      <form id="form-tahvili">
-        <div class="field">
-          <label>ماه</label>
-          <select name="ماه" required></select>
-        </div>
-        <div class="field">
-          <label>نام اکیپ</label>
-          <select name="نام اکیپ" id="tahvili-team" required></select>
-        </div>
-
-        <div class="branch" id="tahvili-branch-a">
-          <div class="section-title">متریال تحویلی</div>
-          <div class="grid2" id="tahvili-a-fields"></div>
-          <div class="field">
-            <label>توضیحات <span class="hint">(اختیاری)</span></label>
-            <textarea name="توضیحات"></textarea>
-          </div>
-        </div>
-
-        <div class="branch" id="tahvili-branch-b">
-          <div class="section-title">متریال تحویلی (بهادر/سجاد)</div>
-          <p class="hint" style="margin:-4px 0 10px;">در صورت عدم تحویل، عدد ۰ را وارد کن.</p>
-          <div class="grid2" id="tahvili-b-fields"></div>
-        </div>
-
-        <button type="submit" class="submit-btn">ثبت انبار تحویلی</button>
-        <div class="status-box"></div>
-        <div class="debug-box"></div>
-      </form>
-    </div>
-  </section>
-
-  <!-- ===================== فرم ۳: خرید مرکزی ===================== -->
-  <section class="panel" id="panel-markazi">
-    <div class="card">
-      <form id="form-markazi">
-        <div class="field">
-          <label>ماه</label>
-          <select name="ماه" required></select>
-        </div>
-
-        <div class="section-title">متریال</div>
-        <div class="grid2" id="markazi-fields"></div>
-
-        <div class="field">
-          <label>توضیحات <span class="hint">(اختیاری)</span></label>
-          <textarea name="توضیحات"></textarea>
-        </div>
-
-        <button type="submit" class="submit-btn">ثبت خرید مرکزی</button>
-        <div class="status-box"></div>
-        <div class="debug-box"></div>
-      </form>
-    </div>
-  </section>
-
-  <!-- ===================== فرم ۴: عملکرد سجاد ===================== -->
-  <section class="panel" id="panel-sajad">
-    <div class="card">
-      <form id="form-sajad">
-        <div class="field">
-          <label>نام اکیپ</label>
-          <input type="text" name="نام اکیپ" value="سجاد محمد نژاد" disabled>
-          <input type="hidden" name="نام اکیپ" value="سجاد محمد نژاد">
-        </div>
-        <div class="field">
-          <label>ماه</label>
-          <select name="ماه" required></select>
-        </div>
-
-        <div class="section-title">متریال</div>
-        <div class="grid2" id="sajad-fields"></div>
-
-        <div class="field">
-          <label>توضیحات <span class="hint">(اختیاری)</span></label>
-          <textarea name="توضیحات"></textarea>
-        </div>
-
-        <button type="submit" class="submit-btn">ثبت عملکرد سجاد</button>
-        <div class="status-box"></div>
-        <div class="debug-box"></div>
-      </form>
-    </div>
-  </section>
-
-  <!-- ===================== فرم ۵: آمار خرابی ===================== -->
-  <section class="panel" id="panel-kharabi">
-    <div class="card">
-      <form id="form-kharabi">
-        <div class="field">
-          <label>مرکز</label>
-          <select name="مرکز" required></select>
-        </div>
-        <div class="field">
-          <label>ماه</label>
-          <select name="ماه" required></select>
-        </div>
-        <div class="field">
-          <label>نوع خرابی</label>
-          <select name="نوع خرابی" required></select>
-        </div>
-        <div class="field">
-          <label>تعداد</label>
-          <input type="text" inputmode="decimal" name="تعداد" required>
-        </div>
-        <div class="field">
-          <label>توضیحات <span class="hint">(اختیاری)</span></label>
-          <textarea name="توضیحات"></textarea>
-        </div>
-
-        <button type="submit" class="submit-btn">ثبت آمار خرابی</button>
-        <div class="status-box"></div>
-        <div class="debug-box"></div>
-      </form>
-    </div>
-  </section>
-
-</main>
-
+:root{--n:#1e3a5f;--l:#e3e7eb;--g:#1f9d55}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f8;font:15px Tahoma,Arial,sans-serif;color:#1c2530;padding-bottom:84px}
+header{background:var(--n);color:#fff;padding:10px 12px;position:sticky;top:0;z-index:5}
+header small{display:block;color:#ffd27a;margin-top:4px}
+.dt{display:flex;gap:8px;margin-top:6px}
+.dt button{flex:1;padding:9px;border:0;border-radius:8px;background:#ffffff33;color:#fff;font:inherit}
+.dt .on{background:#fff;color:var(--n);font-weight:700}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px}
+nav button{flex:0 0 auto;padding:8px 14px;border:1px solid var(--l);border-radius:20px;background:#fff;font:inherit}
+nav .on{background:var(--n);color:#fff}
+main{padding:0 10px}
+h3,h4{margin:12px 2px 6px}.mt{color:#6b7684;margin:10px 2px}
+.card{background:#fff;border:1px solid var(--l);border-radius:12px;padding:10px;margin-top:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:9px 12px;border:1px solid var(--l);border-radius:10px;background:#fff;font:inherit}
+.chip.on{background:var(--n);color:#fff}.chip.dn{border-color:var(--g);color:var(--g)}.chip.on.dn{color:#fff}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.st label{display:block;font-size:12px;color:#6b7684;margin-bottom:3px}
+.st div{display:flex;direction:ltr}
+.st button{width:38px;border:1px solid var(--l);background:#eef2f6;font-size:20px}
+.st input{width:100%;min-width:0;text-align:center;border:1px solid var(--l);font:inherit;padding:8px 0}
+textarea,select,.nt{width:100%;border:1px solid var(--l);border-radius:8px;padding:8px;font:inherit;margin-top:8px}
+.fv{color:var(--n);font-weight:700;margin-right:6px}
+.lnk{background:none;border:0;color:var(--n);font:inherit;text-decoration:underline;padding:10px 2px}
+#go{position:fixed;bottom:0;left:0;right:0;padding:10px;background:#fff;border-top:1px solid var(--l);display:none}
+#go button{width:100%;padding:14px;background:var(--g);color:#fff;border:0;border-radius:10px;font:700 16px Tahoma}
+#ov{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:9;padding:14px}
+.bx{background:#fff;border-radius:14px;padding:14px;width:100%;max-height:85vh;overflow:auto}
+.bx pre{direction:ltr;font-size:11px;white-space:pre-wrap}.ls div{padding:4px 0;border-bottom:1px solid var(--l)}
+.bt{display:flex;gap:8px;margin-top:12px}.bt button{flex:1;padding:12px;border-radius:10px;border:1px solid var(--l);background:#fff;font:inherit}
+.bt button:first-child{background:var(--g);color:#fff;border:0;font-weight:700}
+#ts{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--g);color:#fff;padding:10px 18px;border-radius:20px;display:none;z-index:10}
+</style></head><body>
+<header><b>ثبت اطلاعات</b><div class="dt"></div><small id="off" style="display:none">خارج از بله: فقط پیش‌نمایش، چیزی ارسال نمی‌شود.</small></header>
+<nav id="nav"></nav><main id="app"></main><div id="go"></div><div id="ov"></div><div id="ts"></div>
 <script>
-/* =====================================================================
-   این فایل باید همیشه هم‌گام با BALE_FORM_COLUMNS و SOURCES در
-   auto_pipeline.py بماند: هر کلید فیلد اینجا باید عیناً همون متن ستون
-   اکسل باشه (فاصله‌های عجیب هم عمدی‌ان، مثل "میکرو فیبر 12" با فاصله
-   ولی "میکروفیبر 48" بدون فاصله - دقیقاً همینه که توی اکسل هست).
-   ===================================================================== */
+/* کلیدها باید عیناً با BALE_FORM_COLUMNS در auto_pipeline.py یکی باشند */
+const TEAMS=["رحیمی- عمو هاشمی","داودمحمدی - سخندان","کارن دهقان","امیرباقری","شکوهی-یوسفی","عزیزی-غفوری","پرهام","قاسمی","ایکس","کریمی- نصیری","اسفندیاری","احمدی","عادل پویا- ارکانی","نعمتیان","عرفان","طهماسبی","رضوی"];
+const TEAMS_T=TEAMS.concat(["سجاد محمد نژاد","بهادر اصفهانی"]),BB=["سجاد محمد نژاد","بهادر اصفهانی"],CFG_ONLY=["پرهام","قاسمی"];
+const CEN=["کاظمی","کوثر","نصرآبادی","محور"],KT=["قطعی فیبر","خرابی اسپلایس","خرابی اسپلیتر","خرابی FAT","سایر"];
+const COUNTS=["داخلی","بیرونی","فیوژن","کانفیگ"];
+const MAT=["کابل 2 کر داخلی","کابل 2 کر بیرونی","کابل 4 کر بیرونی","اسپلیتر 1:2","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:16","اسپلیتر 1:32","پیگتیل","آداپتور تکی","آداپتور دوبل","FAT 12","FAT 24","FAT 48"];
+const mt=k=>/^کابل \d کر/.test(k)?k+" (متر)":k,TA=MAT.map(mt);
+const B=["میکروداکت 4 کاناله","میکروداکت 7 کاناله","میکرو فیبر 12","میکرو فیبر 24","میکروفیبر 48","میکروفیبر 72","کابل 12 خاکی","کابل 24 خاکی","کابل 48 خاکی","کابل 72 خاکی","کابل 144 خاکی","کابل 12 کانالی","کابل 24 کانالی","کابل 48 کانالی","کابل 72 کانالی","کابل 144 کانالی","مفصل 12","مفصل 24","مفصل 48","مفصل 72","مفصل 144","سابداکت","لوله پلی اتیلن","لوله پست","FAT 12 (بهادر/سجاد)","FAT 24 (بهادر/سجاد)","FAT 48 (بهادر/سجاد)"];
+const MK=TA.concat(["لوله پست","رزرو 1","رزرو 2"],B.slice(0,23)),SAJ=["پیگتیل","FAT 12","FAT 24","FAT 48","لوله پست","رزرو 1","رزرو 2"];
+const PREF=["پیگتیل","FAT 48","کابل 2 کر بیرونی (متر)","آداپتور تکی","آداپتور دوبل","کابل 2 کر داخلی (متر)","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:2","اسپلیتر 1:16"];
+const RS=["بارندگی/شرایط جوی","تعطیلی","نبود متریال","نبود مجوز/هماهنگی","مرخصی/غیبت نیرو","خرابی خودرو/تجهیزات","سایر"];
+const FM={ops:"ورودی گوگل عملیات",tah:"ورودی گوگل تحویلی",mar:"ورودی گوگل خرید مرکزی",saj:"ورودی گوگل سجاد",kh:"ورودی گوگل خرابی"};
+const NOTE="توضیحات- علت عدم انجام کار",TN={ops:"عملکرد روزانه",zero:"بدون‌کار",kh:"خرابی",tah:"تحویلی اکیپ",mar:"خرید مرکزی",saj:"مصرفی سجاد"};
+//--UI
+const $=(s,e=document)=>e.querySelector(s),el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+const U=new URLSearchParams(location.search).get("u")||"",TB={j:["ops","zero","kh"],n:["tah","mar"],b:["saj"]},tabs=TB[U]||Object.keys(TN);
+const BALE=!!(window.Bale&&window.Bale.WebApp),app=$("#app"),go=$("#go"),ov=$("#ov"),S={};let tab=tabs[0],W=0;
+if(!BALE)$("#off").style.display="block";
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const fmt=(d,o)=>{try{return new Intl.DateTimeFormat("fa-IR-u-ca-persian",o).format(d)}catch(e){return iso(d)}};
+const T0=new Date(),T1=new Date(T0.getTime()-864e5),wdt=()=>W?T1:T0,wd=()=>iso(wdt());
+const nd=s=>String(s).replace(/[۰-۹]/g,c=>c.charCodeAt(0)-1776).replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632).replace("٫",".");
+const isM=k=>k.includes("(متر)"),KEY=()=>"d:"+wd();
+const getDone=()=>{try{return JSON.parse(localStorage.getItem(KEY())||"[]")}catch(e){return[]}};
+const addDone=a=>{try{localStorage.setItem(KEY(),JSON.stringify([...new Set(getDone().concat(a))]))}catch(e){}};
+const getVals=r=>{const o={};r.querySelectorAll("input[data-k]").forEach(i=>o[i.dataset.k]=parseFloat(i.value)||0);return o};
+const setVals=(r,o)=>r.querySelectorAll("input[data-k]").forEach(i=>{if(o[i.dataset.k]!=null)i.value=o[i.dataset.k]});
+const cab=k=>/^کابل/.test(k)||isM(k),pa=k=>/پیگتیل|آداپتور/.test(k);
+const stepFor=k=>tab==="mar"?(cab(k)?1000:pa(k)?100:10):tab==="tah"?(cab(k)?100:pa(k)?10:1):(cab(k)?10:1);
+const soft=k=>tab==="mar"?(cab(k)?(k.includes("داخلی")?150000:k.includes("4 کر")?70000:90000):pa(k)?15000:1500):tab==="tah"?(cab(k)?12000:/میکروداکت/.test(k)?3500:pa(k)?1000:200):tab==="saj"?2000:(cab(k)?8000:300);
+const f3=x=>Number(x).toLocaleString("en-US");
+const stp=k=>{const m=isM(k),w=el("div","st",`<label>${k}<span class="fv"></span></label><div><button type="button" data-d="-1">−</button><input inputmode="${m?"decimal":"numeric"}" value="0" data-k="${k}" ${m?'data-m="1"':""}><button type="button" data-d="1">+</button></div>`);w.dataset.s=stepFor(k);return w};
+const grid=(ks)=>{const g=el("div","g2");ks.forEach(k=>g.append(stp(k)));return g};
+const note=p=>Object.assign(el("textarea"),{placeholder:p||"توضیحات (اختیاری)"});
+const chips=(arr,cur,fn,done)=>{const c=el("div","chips");arr.forEach(t=>{const d=done&&done.includes(t),b=el("button","chip"+(cur===t?" on":"")+(d?" dn":""),(d?"✓ ":"")+t);b.type="button";b.onclick=()=>fn(t);c.append(b)});return c};
+const setGo=(t,f)=>{go.style.display=t?"block":"none";go.innerHTML=t?`<button type="button">${t}</button>`:"";if(t)go.firstChild.onclick=f};
+const toast=t=>{const e=$("#ts");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",1800)};
+const lines=v=>Object.keys(v).filter(k=>v[k]>0).map(k=>`${k}: <b>${f3(v[k])}</b>${v[k]>soft(k)?" ⚠ عدد بزرگ، چند صفر دارد؟":""}`);
+const big=v=>Object.values(v).some(x=>x>9999999);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const tsn=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");return iso(d)+" "+p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds())};
+document.addEventListener("click",e=>{const b=e.target.closest(".st button");if(!b)return;const i=b.parentNode.querySelector("input"),s=+b.closest(".st").dataset.s;i.value=Math.max(0,Math.round(((parseFloat(i.value)||0)+b.dataset.d*s)*100)/100);i.dispatchEvent(new Event("input",{bubbles:true}))});
+document.addEventListener("input",e=>{const i=e.target;if(!(i.dataset&&i.dataset.k))return;i.value=nd(i.value).replace(i.dataset.m?/[^0-9.]/g:/[^0-9]/g,"");const fv=i.closest(".st").querySelector(".fv"),n=parseFloat(i.value)||0;fv.textContent=n>=1000?f3(n):""});
+document.addEventListener("focusin",e=>{if(e.target.dataset&&e.target.dataset.k)e.target.select()});
+document.addEventListener("focusout",e=>{if(e.target.dataset&&e.target.dataset.k&&e.target.value==="")e.target.value="0"});
 
-const MONTHS = ["مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+function confirmSend(title,ls,form,fields,rows,after,raw){
+  if(!ls.length)return;
+  const cid=uid(),box=el("div","bx",`<h3>${title}</h3>${raw?(raw.__work_date__?"<p>تاریخ کار: <b>"+raw.__work_date__+"</b></p>":""):`<p>تاریخ کار: <b>${W?"دیروز":"امروز"} ${fmt(wdt(),{day:"numeric",month:"long"})}</b></p>`}<div class="ls">${ls.some(l=>l.includes("⚠"))?"<div style=\"color:#c0392b;font-weight:700\">⚠ یک یا چند عدد از حد معمول بزرگ‌تره؛ یک‌بار دیگه چک کن.</div>":""}${ls.map(l=>"<div>"+l+"</div>").join("")}</div><div class="bt"><button type="button" id="ok">${ls.some(l=>l.includes("⚠"))?"عددها را چک کردم، ارسال":"تأیید و ارسال"}</button><button type="button" id="no">بازگشت</button></div>`);
+  ov.innerHTML="";ov.append(box);ov.style.display="flex";
+  $("#no").onclick=()=>ov.style.display="none";
+  $("#ok").onclick=function(){
+    this.disabled=true;
+    const base={__form__:form,__v__:2,__cid__:cid,__day__:W,__work_date__:wd(),Timestamp:tsn(),"ماه":fmt(wdt(),{month:"long"})};
+    const payload=raw?Object.assign({Timestamp:tsn()},raw):rows?Object.assign(base,{rows}):Object.assign(base,fields);
+    if(!BALE){box.innerHTML="<h3>پیش‌نمایش (ارسال نشد)</h3><pre>"+JSON.stringify(payload,null,1)+'</pre><div class="bt"><button type="button" id="c2">بستن</button></div>';$("#c2").onclick=()=>ov.style.display="none";return}
+    try{Bale.WebApp.sendData(JSON.stringify(payload));ov.style.display="none";toast("✅ ثبت شد");after()}catch(err){this.disabled=false;alert("ارسال ناموفق: "+err.message)}
+  };
+}
 
-const TEAMS_AMALIYAT = [
-  "رحیمی- عمو هاشمی","داودمحمدی - سخندان","کارن دهقان","امیرباقری","شکوهی-یوسفی",
-  "عزیزی-غفوری","پرهام","قاسمی","ایکس","کریمی- نصیری","اسفندیاری","احمدی",
-  "عادل پویا- ارکانی","نعمتیان","عرفان","طهماسبی","رضوی"
-];
-
-const TEAMS_TAHVILI = [
-  "رحیمی- عمو هاشمی","داودمحمدی - سخندان","کارن دهقان","امیرباقری","شکوهی-یوسفی",
-  "عزیزی-غفوری","پرهام","قاسمی","ایکس","کریمی- نصیری","احمدی","اسفندیاری",
-  "عادل پویا- ارکانی","نعمتیان","عرفان","طهماسبی","رضوی","سجاد محمد نژاد","بهادر اصفهانی"
-];
-const TAHVILI_BRANCH_B_TEAMS = ["سجاد محمد نژاد","بهادر اصفهانی"];
-
-const KHARABI_CENTERS = ["کاظمی","کوثر","نصرآبادی","محور"];
-const KHARABI_TYPES = ["قطعی فیبر","خرابی اسپلایس","خرابی اسپلیتر","خرابی FAT","سایر"];
-
-const AMALIYAT_COUNTS = ["داخلی","بیرونی","فیوژن","کانفیگ"];
-const AMALIYAT_MATERIALS = [
-  "کابل 2 کر داخلی","کابل 2 کر بیرونی","کابل 4 کر بیرونی",
-  "اسپلیتر 1:2","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:16","اسپلیتر 1:32",
-  "پیگتیل","آداپتور تکی","آداپتور دوبل","FAT 12","FAT 24","FAT 48"
-];
-
-const TAHVILI_A_FIELDS = [
-  "کابل 2 کر داخلی (متر)","کابل 2 کر بیرونی (متر)","کابل 4 کر بیرونی (متر)",
-  "اسپلیتر 1:2","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:16","اسپلیتر 1:32",
-  "پیگتیل","آداپتور تکی","آداپتور دوبل","FAT 12","FAT 24","FAT 48"
-];
-const TAHVILI_B_FIELDS = [
-  "میکروداکت 4 کاناله","میکروداکت 7 کاناله",
-  "میکرو فیبر 12","میکرو فیبر 24","میکروفیبر 48","میکروفیبر 72",
-  "کابل 12 خاکی","کابل 24 خاکی","کابل 48 خاکی","کابل 72 خاکی","کابل 144 خاکی",
-  "کابل 12 کانالی","کابل 24 کانالی","کابل 48 کانالی","کابل 72 کانالی","کابل 144 کانالی",
-  "مفصل 12","مفصل 24","مفصل 48","مفصل 72","مفصل 144",
-  "سابداکت","لوله پلی اتیلن","لوله پست",
-  "FAT 12 (بهادر/سجاد)","FAT 24 (بهادر/سجاد)","FAT 48 (بهادر/سجاد)"
-];
-
-const MARKAZI_FIELDS = [
-  "کابل 2 کر داخلی (متر)","کابل 2 کر بیرونی (متر)","کابل 4 کر بیرونی (متر)",
-  "اسپلیتر 1:2","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:16","اسپلیتر 1:32",
-  "پیگتیل","آداپتور تکی","آداپتور دوبل","FAT 12","FAT 24","FAT 48",
-  "لوله پست","رزرو 1","رزرو 2",
-  "میکروداکت 4 کاناله","میکروداکت 7 کاناله",
-  "میکرو فیبر 12","میکرو فیبر 24","میکروفیبر 48","میکروفیبر 72",
-  "کابل 12 خاکی","کابل 24 خاکی","کابل 48 خاکی","کابل 72 خاکی","کابل 144 خاکی",
-  "کابل 12 کانالی","کابل 24 کانالی","کابل 48 کانالی","کابل 72 کانالی","کابل 144 کانالی",
-  "مفصل 12","مفصل 24","مفصل 48","مفصل 72","مفصل 144",
-  "سابداکت","لوله پلی اتیلن"
-];
-
-const SAJAD_FIELDS = ["پیگتیل","FAT 12","FAT 24","FAT 48","لوله پست","رزرو 1","رزرو 2"];
-
-/* ---------------------- ابزارهای عمومی ساخت فرم ---------------------- */
-
-function fillSelect(select, options, placeholder){
-  select.innerHTML = "";
-  const ph = document.createElement("option");
-  ph.value = ""; ph.textContent = placeholder || "انتخاب کن...";
-  ph.disabled = true; ph.selected = true;
-  select.appendChild(ph);
-  options.forEach(opt=>{
-    const o = document.createElement("option");
-    o.value = opt; o.textContent = opt;
-    select.appendChild(o);
+function vOps(){
+  const keep=getVals(app),d=getDone();app.innerHTML="";
+  app.append(el("h3",0,"اکیپ"),chips(TEAMS,S.crew,t=>{S.crew=t;S.all=0;V()},d));
+  if(!S.crew)return setGo("");
+  const cfg=CFG_ONLY.includes(S.crew)&&!S.all,box=el("div","card");
+  box.append(grid(cfg?["کانفیگ"]:COUNTS));
+  if(cfg){const m=el("button","lnk","نمایش همه‌ی فیلدها");m.type="button";m.onclick=()=>{S.all=1;V()};box.append(m)}
+  else box.append(el("h4",0,"متریال مصرفی"),grid(MAT));
+  const nt=note();box.append(nt);app.append(box);setVals(app,keep);
+  setGo("بررسی و ارسال",()=>{
+    const v=getVals(box),ks=COUNTS.concat(MAT),f={"نام اکیپ":S.crew};ks.forEach(k=>f[k]=String(v[k]||0));f[NOTE]=nt.value.trim();
+    if(!ks.some(k=>v[k]>0))return alert("همه‌ی اعداد صفره. اگر اکیپ کار نداشته، از تب «بدون‌کار» ثبتش کن.");
+    if(big(v))return alert("یک عدد بیش از حد بزرگه، دوباره چک کن.");
+    if(getDone().includes(S.crew)&&!confirm("این اکیپ برای این تاریخ قبلاً ثبت شده. دوباره ثبت شود؟"))return;
+    confirmSend(S.crew,lines(v),FM.ops,f,0,()=>{addDone([S.crew]);S.crew=TEAMS.find(t=>!getDone().includes(t))||"";S.all=0;V()});
   });
 }
 
-function buildNumberFields(container, names){
-  container.innerHTML = "";
-  names.forEach(name=>{
-    const wrap = document.createElement("div");
-    wrap.className = "field";
-    wrap.innerHTML = `
-      <label>${name}</label>
-      <input type="text" inputmode="decimal" name="${name}" required>
-    `;
-    container.appendChild(wrap);
+function vZero(){
+  app.innerHTML="";const td=TEAMS.filter(t=>!getDone().includes(t));
+  if(!td.length){app.append(el("p","mt","همه‌ی اکیپ‌ها برای این تاریخ ثبت شده‌اند ✓"));return setGo("")}
+  app.append(el("p","mt","اکیپ‌هایی که کاری نداشتند را تیک بزن و دلیلشان را انتخاب کن."));
+  td.forEach(t=>{const r=el("div","card zr",`<label><input type="checkbox" data-t="${t}"> ${t}</label><div class="zd" style="display:none"><select><option value="">دلیل؟</option>${RS.map(x=>`<option>${x}</option>`).join("")}</select><input class="nt" placeholder="توضیح (اختیاری)"></div>`);
+    r.querySelector("input").onchange=e=>r.querySelector(".zd").style.display=e.target.checked?"block":"none";app.append(r)});
+  setGo("بررسی و ارسال",()=>{
+    const rows=[],nm=[];let bad=0;
+    app.querySelectorAll(".zr").forEach(r=>{const c=r.querySelector("input");if(!c.checked)return;const s=r.querySelector("select").value,n=r.querySelector(".nt").value.trim();
+      if(!s||(s==="سایر"&&!n))bad=1;const f={"نام اکیپ":c.dataset.t};COUNTS.concat(MAT).forEach(k=>f[k]="0");f[NOTE]=s+(n?": "+n:"");rows.push(f);nm.push(c.dataset.t+" — "+s)});
+    if(!rows.length)return alert("هیچ اکیپی تیک نخورده.");
+    if(bad)return alert("برای هر اکیپ دلیل لازم است (برای «سایر» توضیح هم بنویس).");
+    confirmSend("بدون‌کار: "+rows.length+" اکیپ",nm,FM.ops,0,rows,()=>{addDone(rows.map(r=>r["نام اکیپ"]));V()});
   });
 }
 
-/* ---------------------- مقداردهی اولیه‌ی هر فرم ---------------------- */
-
-document.querySelectorAll('select[name="ماه"]').forEach(s => fillSelect(s, MONTHS, "ماه را انتخاب کن"));
-
-fillSelect(document.querySelector('#form-amaliyat select[name="نام اکیپ"]'), TEAMS_AMALIYAT, "اکیپ را انتخاب کن");
-buildNumberFields(document.getElementById("amaliyat-counts"), AMALIYAT_COUNTS);
-buildNumberFields(document.getElementById("amaliyat-materials"), AMALIYAT_MATERIALS);
-
-const tahviliTeamSelect = document.getElementById("tahvili-team");
-fillSelect(tahviliTeamSelect, TEAMS_TAHVILI, "اکیپ را انتخاب کن");
-buildNumberFields(document.getElementById("tahvili-a-fields"), TAHVILI_A_FIELDS);
-buildNumberFields(document.getElementById("tahvili-b-fields"), TAHVILI_B_FIELDS);
-
-function updateTahviliBranch(){
-  const isBranchB = TAHVILI_BRANCH_B_TEAMS.includes(tahviliTeamSelect.value);
-  const hasTeam = !!tahviliTeamSelect.value;
-  document.getElementById("tahvili-branch-a").classList.toggle("active", !isBranchB && hasTeam);
-  document.getElementById("tahvili-branch-b").classList.toggle("active", isBranchB);
-
-  // فیلدهای شاخه‌ی غیرفعال نباید required بمانند وگرنه فرم قابل ارسال نمی‌شود،
-  // و مقدار قدیمی‌شان هم باید پاک شود - وگرنه اگر کاربر اول یک اکیپ را پر کند
-  // و بعد اکیپش را عوض کند، مقدار قدیمیِ شاخه‌ی دیگر همراه ثبت جدید می‌رود.
-  document.querySelectorAll("#tahvili-a-fields input").forEach(i => {
-    i.required = !isBranchB && hasTeam;
-    if (isBranchB || !hasTeam) i.value = "";
-  });
-  document.querySelectorAll("#tahvili-b-fields input").forEach(i => {
-    i.required = isBranchB;
-    if (!isBranchB) i.value = "";
+function vKh(){
+  const keep=getVals(app);app.innerHTML="";
+  app.append(el("h3",0,"مرکز"),chips(CEN,S.cen,t=>{S.cen=t;V()}));
+  if(!S.cen)return setGo("");
+  const box=el("div","card");box.append(grid(KT));const nt=note();box.append(nt);app.append(box);setVals(app,keep);
+  setGo("بررسی و ارسال",()=>{
+    const v=getVals(box),rows=KT.filter(k=>v[k]>0).map(k=>({"مرکز":S.cen,"نوع خرابی":k,"تعداد":String(v[k]),"توضیحات":nt.value.trim()}));
+    if(!rows.length)return alert("هیچ خرابی‌ای وارد نشده.");
+    if(big(v))return alert("یک عدد بیش از حد بزرگه.");
+    confirmSend("خرابی "+S.cen,lines(v),FM.kh,0,rows,()=>{S.cen="";V()});
   });
 }
-tahviliTeamSelect.addEventListener("change", updateTahviliBranch);
-updateTahviliBranch();
 
-buildNumberFields(document.getElementById("markazi-fields"), MARKAZI_FIELDS);
-buildNumberFields(document.getElementById("sajad-fields"), SAJAD_FIELDS);
-
-fillSelect(document.querySelector('#form-kharabi select[name="مرکز"]'), KHARABI_CENTERS, "مرکز را انتخاب کن");
-fillSelect(document.querySelector('#form-kharabi select[name="نوع خرابی"]'), KHARABI_TYPES, "نوع خرابی را انتخاب کن");
-
-/* ---------------------- تب‌ها ---------------------- */
-
-document.querySelectorAll(".tab-btn").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById("panel-"+btn.dataset.tab).classList.add("active");
+function vPick(kind){
+  const keep=getVals(app);app.innerHTML="";
+  let keys=MK,pref=PREF,ex={},form=FM.mar,title="خرید مرکزی";
+  if(kind==="tah"){
+    app.append(el("h3",0,"اکیپ"),chips(TEAMS_T,S.team,t=>{S.team=t;S.it=[];V()}));
+    if(!S.team)return setGo("");
+    const b=BB.includes(S.team);keys=b?B:TA;pref=b?B.slice(23):PREF;ex={"نام اکیپ":S.team};form=FM.tah;title="تحویل به "+S.team;
+  }
+  S.it=S.it||[];
+  const box=el("div","card");box.append(el("h4",0,"اقلام این ثبت"));
+  if(S.it.length)box.append(grid(S.it));else box.append(el("p","mt","قلم‌ها را از پایین اضافه کن؛ بقیه خودکار صفر ثبت می‌شوند."));
+  const add=k=>{S.it.push(k);V()},rest=keys.filter(k=>!S.it.includes(k));
+  box.append(chips(pref.filter(k=>!S.it.includes(k)),"",add));
+  const mb=el("button","lnk",S.more?"بستن سایر اقلام":"سایر اقلام ▾");mb.type="button";mb.onclick=()=>{S.more=!S.more;V()};box.append(mb);
+  if(S.more)box.append(chips(rest.filter(k=>!pref.includes(k)),"",add));
+  const nt=note();box.append(nt);app.append(box);setVals(app,keep);
+  setGo("بررسی و ارسال",()=>{
+    const v=getVals(box),f=Object.assign({},ex);keys.forEach(k=>f[k]=String(v[k]||0));f["توضیحات"]=nt.value.trim();
+    if(!keys.some(k=>v[k]>0))return alert("هیچ قلمی با مقدار بیشتر از صفر وارد نشده.");
+    if(big(v))return alert("یک عدد بیش از حد بزرگه.");
+    confirmSend(title,lines(v),form,f,0,()=>{S.it=[];S.more=0;V()});
   });
-});
-
-/* ---------------------- ارسال به بله ---------------------- */
-
-const FORM_IDS = {
-  "form-amaliyat": "ورودی گوگل عملیات",
-  "form-tahvili": "ورودی گوگل تحویلی",
-  "form-markazi": "ورودی گوگل خرید مرکزی",
-  "form-sajad": "ورودی گوگل سجاد",
-  "form-kharabi": "ورودی گوگل خرابی",
-};
-
-const isInsideBale = !!(window.Bale && window.Bale.WebApp);
-if (!isInsideBale){
-  document.getElementById("offlineNotice").style.display = "block";
 }
 
-function nowStamp(){
-  const d = new Date();
-  const pad = n => String(n).padStart(2,"0");
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+function vSaj(){
+  app.innerHTML="";const box=el("div","card");box.append(el("h4",0,"مصرفی سجاد محمد نژاد"),grid(SAJ));const nt=note();box.append(nt);
+  const nz=el("button","lnk","امروز مصرفی نداشتم");nz.type="button";
+  nz.onclick=()=>{const f={"نام اکیپ":"سجاد محمد نژاد"};SAJ.forEach(k=>f[k]="0");f["توضیحات"]="بدون مصرف";confirmSend("بدون مصرف",["امروز مصرفی نداشتم"],FM.saj,f,0,()=>V())};
+  box.append(nz);app.append(box);
+  setGo("بررسی و ارسال",()=>{
+    const v=getVals(box),f={"نام اکیپ":"سجاد محمد نژاد"};SAJ.forEach(k=>f[k]=String(v[k]||0));f["توضیحات"]=nt.value.trim();
+    if(!SAJ.some(k=>v[k]>0))return alert("همه‌ی اعداد صفره.");
+    if(big(v))return alert("یک عدد بیش از حد بزرگه.");
+    confirmSend("مصرفی سجاد",lines(v),FM.saj,f,0,()=>V());
+  });
 }
 
-document.querySelectorAll("form").forEach(form=>{
-  form.addEventListener("submit", function(e){
-    e.preventDefault();
-
-    const statusBox = form.querySelector(".status-box");
-    const debugBox = form.querySelector(".debug-box");
-    statusBox.className = "status-box";
-    debugBox.style.display = "none";
-
-    const formData = new FormData(form);
-    const fields = {};
-    formData.forEach((value, key)=>{ fields[key] = value; });
-
-    const payload = { __form__: FORM_IDS[form.id], "Timestamp": nowStamp(), ...fields };
-
-    if (isInsideBale){
-      try{
-        window.Bale.WebApp.sendData(JSON.stringify(payload));
-        statusBox.textContent = "✅ ثبت شد.";
-        statusBox.classList.add("ok");
-        setTimeout(()=>{ form.reset(); if(form.id==="form-tahvili") updateTahviliBranch(); statusBox.className="status-box"; }, 1200);
-      }catch(err){
-        statusBox.textContent = "❌ ارسال ناموفق بود: " + err.message;
-        statusBox.classList.add("err");
-      }
-    } else {
-      statusBox.textContent = "⚠️ خارج از بله - فقط پیش‌نمایش (پایین را ببین)، چیزی واقعاً ارسال نشد.";
-      statusBox.classList.add("err");
-      debugBox.style.display = "block";
-      debugBox.textContent = JSON.stringify(payload, null, 2);
-    }
-  });
-});
-</script>
-
-</body>
-</html>
+function V(){
+  $(".dt").innerHTML="";
+  [["امروز",T0],["دیروز",T1]].forEach((x,i)=>{const b=el("button",W===i?"on":"",x[0]+" "+fmt(x[1],{day:"numeric",month:"long"}));b.type="button";b.onclick=()=>{W=i;V()};$(".dt").append(b)});
+  $("#nav").innerHTML="";
+  if(tabs.length>1)tabs.forEach(t=>{const b=el("button",t===tab?"on":"",TN[t]);b.type="button";b.onclick=()=>{tab=t;S.it=[];S.more=0;app.innerHTML="";V()};$("#nav").append(b)});
+  ({ops:vOps,zero:vZero,kh:vKh,tah:()=>vPick("tah"),mar:()=>vPick("mar"),saj:vSaj})[tab]();
+}
+/* ویرایش/ابطال: فقط با لینک دکمه‌ی پیام رسیدِ ربات برای ادمین باز می‌شود؛ سرور هم فقط چت ادمین را می‌پذیرد */
+const AQ=new URLSearchParams(location.search),ACT=AQ.get("act");let AD=null;
+try{let x=AQ.get("d").replace(/-/g,"+").replace(/_/g,"/");x+="=".repeat((4-x.length%4)%4);AD=JSON.parse(decodeURIComponent(escape(atob(x))))}catch(e){}
+const FK=(f,v)=>f===FM.ops?COUNTS.concat(MAT):f===FM.tah?(BB.includes(v["نام اکیپ"])?B:TA):f===FM.mar?MK:f===FM.saj?SAJ:["تعداد"];
+const IDK=["نام اکیپ","مرکز","نوع خرابی"];
+function vAdmin(){
+  $(".dt").style.display="none";$("#nav").style.display="none";
+  const f=AD.f,v=AD.v||{},key=Object.keys(FM).find(k=>FM[k]===f)||"ops",isEdit=ACT==="edit"&&!AD.b,box=el("div","card");
+  const done=()=>{app.innerHTML='<p class="mt">✅ ارسال شد. نتیجه را ربات با پیام تأیید می‌کند.</p>';setGo("")};
+  app.append(el("h3",0,(isEdit?"ویرایش ثبت: ":"ابطال ثبت: ")+TN[key]));
+  IDK.forEach(k=>{if(v[k])box.append(el("p","mt",k+": <b>"+v[k]+"</b>"))});
+  if(AD.b)box.append(el("p","mt","این یک ثبت گروهی با <b>"+AD.b+"</b> ردیف است؛ ابطال، همه‌ی ردیف‌ها را حذف می‌کند."));
+  tab=key;
+  if(isEdit){
+    const di=Object.assign(el("input","nt"),{type:"date",value:AD.w}),ks=FK(f,v),nk=f===FM.ops?NOTE:"توضیحات";
+    box.append(el("p","mt","تاریخ کار (میلادی):"),di);const g=grid(ks);box.append(g);
+    const nv={};ks.forEach(k=>nv[k]=parseFloat(v[k])||0);setVals(g,nv);g.querySelectorAll("input").forEach(i=>i.dispatchEvent(new Event("input",{bubbles:true})));
+    const nt=note();nt.value=v[nk]||"";box.append(nt);app.append(box);
+    setGo("بررسی و ارسال ویرایش",()=>{
+      const vals=getVals(g),fl={};IDK.forEach(k=>{if(v[k])fl[k]=v[k]});ks.forEach(k=>fl[k]=String(vals[k]||0));fl[nk]=nt.value.trim();
+      if(!di.value)return alert("تاریخ کار را وارد کن.");
+      if(big(vals))return alert("یک عدد بیش از حد بزرگه.");
+      if(!ks.some(k=>vals[k]>0))return alert("همه‌ی اعداد صفره؛ برای حذف از «ابطال» استفاده کن.");
+      confirmSend("ویرایش ثبت",lines(vals).concat(["تاریخ کار: "+di.value]),f,0,0,done,Object.assign({__form__:f,__v__:2,__cid__:AD.c,__edit__:true,__work_date__:di.value},fl));
+    });
+  }else{
+    Object.keys(v).forEach(k=>box.append(el("p","mt",k+": <b>"+v[k]+"</b>")));
+    const rs=Object.assign(el("textarea"),{placeholder:"دلیل ابطال (اجباری)"});box.append(rs);app.append(box);
+    setGo("ابطال نهایی",()=>{
+      if(rs.value.trim().length<3)return alert("دلیل ابطال را بنویس.");
+      confirmSend("ابطال ثبت",["شناسه: "+AD.c,"دلیل: "+rs.value.trim()],f,0,0,done,{__form__:f,__v__:2,__cid__:AD.c,__void__:true,reason:rs.value.trim()});
+    });
+  }
+}
+if(ACT&&AD)vAdmin();else V();
+</script></body></html>
