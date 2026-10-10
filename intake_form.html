@@ -59,8 +59,10 @@ const NOTE="توضیحات- علت عدم انجام کار",TN={ops:"عملکر
 //--UI
 const $=(s,e=document)=>e.querySelector(s),el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
 const U=new URLSearchParams(location.search).get("u")||"",TB={j:["ops","zero","kh"],n:["tah","mar"],b:["saj"]},tabs=TB[U]||Object.keys(TN);
+const teams=()=>{if(wd()>=CUT)return TEAMS;const o=[];TEAMS.forEach(t=>{if(t==="باقری")o.push(OLDC);else if(t!=="عبدالله زادگان")o.push(t)});return o},teamsT=()=>teams().concat(BB);
 const BALE=!!(window.Bale&&window.Bale.WebApp),app=$("#app"),go=$("#go"),ov=$("#ov"),S={};let tab=tabs[0],W=0;
 if(!BALE)$("#off").style.display="block";
+const CUT="2026-10-11",OLDC="امیرباقری"; /* از این تاریخ، «امیرباقری-عبدالله زادگان» دو اکیپ جدا (باقری، عبدالله زادگان) می‌شود */
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const fmt=(d,o)=>{try{return new Intl.DateTimeFormat("fa-IR-u-ca-persian",o).format(d)}catch(e){return iso(d)}};
 const T0=new Date(),T1=new Date(T0.getTime()-864e5),wdt=()=>W?T1:T0,wd=()=>iso(wdt());
@@ -105,7 +107,7 @@ function confirmSend(title,ls,form,fields,rows,after,raw){
 
 function vOps(){
   const keep=getVals(app),d=getDone();app.innerHTML="";
-  app.append(el("h3",0,"اکیپ"),chips(TEAMS,S.crew,t=>{S.crew=t;S.all=0;V()},d));
+  app.append(el("h3",0,"اکیپ"),chips(teams(),S.crew,t=>{S.crew=t;S.all=0;V()},d));
   if(!S.crew)return setGo("");
   const cfg=CFG_ONLY.includes(S.crew)&&!S.all,box=el("div","card");
   box.append(grid(cfg?["کانفیگ"]:COUNTS));
@@ -117,12 +119,12 @@ function vOps(){
     if(!ks.some(k=>v[k]>0))return alert("همه‌ی اعداد صفره. اگر اکیپ کار نداشته، از تب «بدون‌کار» ثبتش کن.");
     if(big(v))return alert("یک عدد بیش از حد بزرگه، دوباره چک کن.");
     if(getDone().includes(S.crew)&&!confirm("این اکیپ برای این تاریخ قبلاً ثبت شده. دوباره ثبت شود؟"))return;
-    confirmSend(S.crew,lines(v),FM.ops,f,0,()=>{addDone([S.crew]);S.crew=TEAMS.find(t=>!getDone().includes(t))||"";S.all=0;V()});
+    confirmSend(S.crew,lines(v),FM.ops,f,0,()=>{addDone([S.crew]);S.crew=teams().find(t=>!getDone().includes(t))||"";S.all=0;V()});
   });
 }
 
 function vZero(){
-  app.innerHTML="";const td=TEAMS.filter(t=>!getDone().includes(t));
+  app.innerHTML="";const td=teams().filter(t=>!getDone().includes(t));
   if(!td.length){app.append(el("p","mt","همه‌ی اکیپ‌ها برای این تاریخ ثبت شده‌اند ✓"));return setGo("")}
   app.append(el("p","mt","اکیپ‌هایی که کاری نداشتند را تیک بزن و دلیلشان را انتخاب کن."));
   td.forEach(t=>{const r=el("div","card zr",`<label><input type="checkbox" data-t="${t}"> ${t}</label><div class="zd" style="display:none"><select><option value="">دلیل؟</option>${RS.map(x=>`<option>${x}</option>`).join("")}</select><input class="nt" placeholder="توضیح (اختیاری)"></div>`);
@@ -154,7 +156,7 @@ function vPick(kind){
   const keep=getVals(app);app.innerHTML="";
   let keys=MK,pref=PREF,ex={},form=FM.mar,title="خرید مرکزی";
   if(kind==="tah"){
-    app.append(el("h3",0,"اکیپ"),chips(TEAMS_T,S.team,t=>{S.team=t;S.it=[];V()}));
+    app.append(el("h3",0,"اکیپ"),chips(teamsT(),S.team,t=>{S.team=t;S.it=[];V()}));
     if(!S.team)return setGo("");
     const b=BB.includes(S.team);keys=b?B:TA;pref=b?B.slice(23):PREF;ex={"نام اکیپ":S.team};form=FM.tah;title="تحویل به "+S.team;
   }
@@ -188,6 +190,8 @@ function vSaj(){
 }
 
 function V(){
+  if(S.crew&&!teams().includes(S.crew))S.crew="";
+  if(S.team&&!teamsT().includes(S.team)){S.team="";S.it=[]}
   $(".dt").innerHTML="";
   [["امروز",T0],["دیروز",T1]].forEach((x,i)=>{const b=el("button",W===i?"on":"",x[0]+" "+fmt(x[1],{day:"numeric",month:"long"}));b.type="button";b.onclick=()=>{W=i;V()};$(".dt").append(b)});
   $("#nav").innerHTML="";
