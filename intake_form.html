@@ -4,39 +4,45 @@
 <title>ثبت اطلاعات</title>
 <script src="https://tapi.bale.ai/miniapp.js?3"></script>
 <style>
-:root{--n:#1e3a5f;--l:#e3e7eb;--g:#1f9d55}
-*{box-sizing:border-box}
-body{margin:0;background:#f4f6f8;font:15px Tahoma,Arial,sans-serif;color:#1c2530;padding-bottom:84px}
-header{background:var(--n);color:#fff;padding:10px 12px;position:sticky;top:0;z-index:5}
-header small{display:block;color:#ffd27a;margin-top:4px}
-.dt{display:flex;gap:8px;margin-top:6px}
-.dt button{flex:1;padding:9px;border:0;border-radius:8px;background:#ffffff33;color:#fff;font:inherit}
+:root{--n:#1e3a5f;--l:#d5dbe2;--g:#1f9d55;--bg:#f4f6f8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);font:17px/1.7 "Vazirmatn","IRANSans",Tahoma,system-ui,Arial,sans-serif;color:#1c2530;padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+button,input,textarea,select{font:inherit;touch-action:manipulation}
+header{background:var(--n);color:#fff;padding:12px 14px;position:relative;z-index:5}
+header small{display:block;color:#ffd27a;margin-top:4px;font-size:14px}
+.dt{display:flex;gap:10px;margin-top:8px}
+.dt button{flex:1;min-height:50px;border:0;border-radius:12px;background:#ffffff33;color:#fff;font-size:17px}
 .dt .on{background:#fff;color:var(--n);font-weight:700}
-nav{display:flex;gap:6px;overflow-x:auto;padding:8px}
-nav button{flex:0 0 auto;padding:8px 14px;border:1px solid var(--l);border-radius:20px;background:#fff;font:inherit}
-nav .on{background:var(--n);color:#fff}
-main{padding:0 10px}
-h3,h4{margin:12px 2px 6px}.mt{color:#6b7684;margin:10px 2px}
-.card{background:#fff;border:1px solid var(--l);border-radius:12px;padding:10px;margin-top:10px}
-.chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{padding:9px 12px;border:1px solid var(--l);border-radius:10px;background:#fff;font:inherit}
-.chip.on{background:var(--n);color:#fff}.chip.dn{border-color:var(--g);color:var(--g)}.chip.on.dn{color:#fff}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.st label{display:block;font-size:12px;color:#6b7684;margin-bottom:3px}
-.st div{display:flex;direction:ltr}
-.st button{width:38px;border:1px solid var(--l);background:#eef2f6;font-size:20px}
-.st input{width:100%;min-width:0;text-align:center;border:1px solid var(--l);font:inherit;padding:8px 0}
-textarea,select,.nt{width:100%;border:1px solid var(--l);border-radius:8px;padding:8px;font:inherit;margin-top:8px}
+nav{display:flex;gap:8px;overflow-x:auto;padding:10px}
+nav button{flex:0 0 auto;min-height:48px;padding:8px 18px;border:1px solid var(--l);border-radius:24px;background:#fff;font-size:17px}
+nav .on{background:var(--n);color:#fff;font-weight:700}
+main{padding:0 12px}
+h3{margin:14px 2px 8px;font-size:20px}h4{margin:14px 2px 8px;font-size:18px}.mt{color:#4a5563;margin:10px 2px;font-size:15px}
+.card{background:#fff;border:1px solid var(--l);border-radius:14px;padding:12px;margin-top:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:48px;padding:8px 16px;border:1px solid var(--l);border-radius:12px;background:#fff;font-size:17px}
+.chip.on{background:var(--n);color:#fff;font-weight:700}.chip.dn{border-color:var(--g);color:var(--g)}.chip.on.dn{color:#fff}
+.g2{display:grid;grid-template-columns:1fr;gap:10px}
+.st{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f8fafc;border:1px solid var(--l);border-radius:14px;padding:8px 10px}
+.st label{flex:1;margin:0;font-size:17px;font-weight:600;color:#1c2530;line-height:1.5}
 .fv{color:var(--n);font-weight:700;margin-right:6px}
-.lnk{background:none;border:0;color:var(--n);font:inherit;text-decoration:underline;padding:10px 2px}
-#go{position:fixed;bottom:0;left:0;right:0;padding:10px;background:#fff;border-top:1px solid var(--l);display:none}
-#go button{width:100%;padding:14px;background:var(--g);color:#fff;border:0;border-radius:10px;font:700 16px Tahoma}
+.st div{display:flex;direction:ltr;flex:0 0 auto}
+.st button{width:52px;height:52px;border:1px solid var(--l);background:#e8eef5;font-size:28px;line-height:1;color:var(--n)}
+.st button:first-child{border-radius:12px 0 0 12px}.st button:last-child{border-radius:0 12px 12px 0}
+.st button:active{background:#cfd9e6}
+.st input{width:84px;height:52px;min-width:0;text-align:center;border:1px solid var(--l);border-left:0;border-right:0;font-size:22px;font-weight:700;padding:0;background:#fff}
+textarea,select,.nt{width:100%;border:1px solid var(--l);border-radius:12px;padding:12px;font-size:17px;margin-top:8px;background:#fff}
+textarea{min-height:84px}
+.lnk{background:none;border:0;color:var(--n);font-size:17px;text-decoration:underline;padding:14px 4px;min-height:48px}
+#go{position:fixed;bottom:0;left:0;right:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid var(--l);display:none}
+#go button{width:100%;min-height:58px;background:var(--g);color:#fff;border:0;border-radius:14px;font-size:19px;font-weight:700}
 #ov{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:9;padding:14px}
-.bx{background:#fff;border-radius:14px;padding:14px;width:100%;max-height:85vh;overflow:auto}
-.bx pre{direction:ltr;font-size:11px;white-space:pre-wrap}.ls div{padding:4px 0;border-bottom:1px solid var(--l)}
-.bt{display:flex;gap:8px;margin-top:12px}.bt button{flex:1;padding:12px;border-radius:10px;border:1px solid var(--l);background:#fff;font:inherit}
+.bx{background:#fff;border-radius:16px;padding:16px;width:100%;max-height:88vh;overflow:auto;font-size:17px}
+.bx pre{direction:ltr;font-size:13px;white-space:pre-wrap}.ls div{padding:8px 0;border-bottom:1px solid var(--l)}
+.bt{display:flex;gap:10px;margin-top:14px}.bt button{flex:1;min-height:54px;border-radius:12px;border:1px solid var(--l);background:#fff;font-size:17px}
 .bt button:first-child{background:var(--g);color:#fff;border:0;font-weight:700}
-#ts{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--g);color:#fff;padding:10px 18px;border-radius:20px;display:none;z-index:10}
+#ts{position:fixed;top:76px;left:50%;transform:translateX(-50%);background:var(--g);color:#fff;padding:12px 22px;border-radius:24px;display:none;z-index:10;font-size:17px}
 </style></head><body>
 <header><b>ثبت اطلاعات</b><div class="dt"></div><small id="off" style="display:none">خارج از بله: فقط پیش‌نمایش، چیزی ارسال نمی‌شود.</small></header>
 <nav id="nav"></nav><main id="app"></main><div id="go"></div><div id="ov"></div><div id="ts"></div>
@@ -44,15 +50,15 @@ textarea,select,.nt{width:100%;border:1px solid var(--l);border-radius:8px;paddi
 <script>
 (function(){
 /* کلیدها باید عیناً با BALE_FORM_COLUMNS در auto_pipeline.py یکی باشند */
-const TEAMS=["رحیمی- عمو هاشمی","داودمحمدی - سخندان","کارن دهقان","باقری","عبدالله زادگان","شکوهی-یوسفی","عزیزی-غفوری","پرهام","قاسمی","کریمی- نصیری","اسفندیاری","احمدی","عادل پویا- ارکانی","نعمتیان","عرفان","طهماسبی","رضوی"];
+const TEAMS=["رحیمی- عمو هاشمی","داودمحمدی - سخندان","کارن دهقان","باقری","عبدالله زادگان","شکوهی-یوسفی","عزیزی-غفوری","پرهام","قاسمی","کریمی- نصیری- ارکانی","اسفندیاری","عادل پویا","نعمتیان","عرفان","طهماسبی","رضوی"];
 const TEAMS_T=TEAMS.concat(["سجاد محمد نژاد","بهادر اصفهانی"]),BB=["سجاد محمد نژاد","بهادر اصفهانی"],CFG_ONLY=["پرهام","قاسمی"];
 const CEN=["کاظمی","کوثر","نصرآبادی","محور"],KT=["قطعی فیبر","خرابی اسپلایس","خرابی اسپلیتر","خرابی FAT","سایر"];
 const COUNTS=["داخلی","بیرونی","فیوژن","کانفیگ"];
-const MAT=["کابل 2 کر داخلی","کابل 2 کر بیرونی","کابل 4 کر بیرونی","اسپلیتر 1:2","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:16","اسپلیتر 1:32","پیگتیل","آداپتور تکی","آداپتور دوبل","FAT 12","FAT 24","FAT 48"];
+const MAT=["کابل 2 کر داخلی","کابل 2 کر بیرونی","کابل 4 کر بیرونی","اسپلیتر 1:2","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:16","اسپلیتر 1:32","پیگتیل","آداپتور تکی","آداپتور دوبل","FAT 12","FAT 24","FAT 48","مودم Q2","مودم تک پورت","مودم دو پورت"];
 const mt=k=>/^کابل \d کر/.test(k)?k+" (متر)":k,TA=MAT.map(mt);
 const B=["میکروداکت 4 کاناله","میکروداکت 7 کاناله","میکرو فیبر 12","میکرو فیبر 24","میکروفیبر 48","میکروفیبر 72","کابل 12 خاکی","کابل 24 خاکی","کابل 48 خاکی","کابل 72 خاکی","کابل 144 خاکی","کابل 12 کانالی","کابل 24 کانالی","کابل 48 کانالی","کابل 72 کانالی","کابل 144 کانالی","مفصل 12","مفصل 24","مفصل 48","مفصل 72","مفصل 144","سابداکت","لوله پلی اتیلن","لوله پست","FAT 12 (بهادر/سجاد)","FAT 24 (بهادر/سجاد)","FAT 48 (بهادر/سجاد)"];
 const MK=TA.concat(["لوله پست","رزرو 1","رزرو 2"],B.slice(0,23)),SAJ=["پیگتیل","FAT 12","FAT 24","FAT 48","لوله پست","رزرو 1","رزرو 2"];
-const PREF=["پیگتیل","FAT 48","کابل 2 کر بیرونی (متر)","آداپتور تکی","آداپتور دوبل","کابل 2 کر داخلی (متر)","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:2","اسپلیتر 1:16"];
+const PREF=["پیگتیل","FAT 48","کابل 2 کر بیرونی (متر)","آداپتور تکی","آداپتور دوبل","کابل 2 کر داخلی (متر)","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:2","اسپلیتر 1:16","مودم Q2","مودم تک پورت","مودم دو پورت"];
 const RS=["بارندگی/شرایط جوی","تعطیلی","نبود متریال","نبود مجوز/هماهنگی","مرخصی/غیبت نیرو","خرابی خودرو/تجهیزات","سایر"];
 const FM={ops:"ورودی گوگل عملیات",tah:"ورودی گوگل تحویلی",mar:"ورودی گوگل خرید مرکزی",saj:"ورودی گوگل سجاد",kh:"ورودی گوگل خرابی"};
 const NOTE="توضیحات- علت عدم انجام کار",TN={ops:"عملکرد روزانه",zero:"بدون‌کار",kh:"خرابی",tah:"تحویلی اکیپ",mar:"خرید مرکزی",saj:"مصرفی سجاد"};
@@ -62,7 +68,7 @@ const U=new URLSearchParams(location.search).get("u")||"",TB={j:["ops","zero","k
 const teams=()=>{if(wd()>=CUT)return TEAMS;const o=[];TEAMS.forEach(t=>{if(t==="باقری")o.push(OLDC);else if(t!=="عبدالله زادگان")o.push(t)});return o},teamsT=()=>teams().concat(BB);
 const BALE=!!(window.Bale&&window.Bale.WebApp),app=$("#app"),go=$("#go"),ov=$("#ov"),S={};let tab=tabs[0],W=0;
 if(!BALE)$("#off").style.display="block";
-const CUT="2026-10-11",OLDC="امیرباقری"; /* از این تاریخ، «امیرباقری-عبدالله زادگان» دو اکیپ جدا (باقری، عبدالله زادگان) می‌شود */
+const CUT="2026-10-10",OLDC="امیرباقری"; /* از این تاریخ (۱۸ مهر ۱۴۰۵، شامل امروز)، «امیرباقری-عبدالله زادگان» دو اکیپ جدا (باقری، عبدالله زادگان) می‌شود */
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const fmt=(d,o)=>{try{return new Intl.DateTimeFormat("fa-IR-u-ca-persian",o).format(d)}catch(e){return iso(d)}};
 const T0=new Date(),T1=new Date(T0.getTime()-864e5),wdt=()=>W?T1:T0,wd=()=>iso(wdt());
