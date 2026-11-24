@@ -50,25 +50,25 @@ textarea{min-height:84px}
 <script>
 (function(){
 /* کلیدها باید عیناً با BALE_FORM_COLUMNS در auto_pipeline.py یکی باشند */
-const TEAMS=["رحیمی- عمو هاشمی","داودمحمدی - سخندان","کارن دهقان","باقری","عبدالله زادگان","شکوهی-یوسفی","عزیزی-غفوری","پرهام","قاسمی","کریمی- نصیری- ارکانی","اسفندیاری","عادل پویا","نعمتیان","عرفان","طهماسبی","رضوی"];
-const TEAMS_T=TEAMS.concat(["سجاد محمد نژاد","بهادر اصفهانی"]),BB=["سجاد محمد نژاد","بهادر اصفهانی"],CFG_ONLY=["پرهام","قاسمی"];
+/* فهرست اکیپ‌ها: n=نام، t=نوع، s=وضعیت (a فعال، x غیرفعال، r بایگانی)، f/e=از/تا تاریخ. نسخه‌ی زیر فقط «پشتیبان» است؛ نسخه‌ی اصلی از crews.json می‌آید که خودکار از جدول اکیپ‌های اکسل ساخته می‌شود. */
+let CREWS=[{"n":"رحیمی- عمو هاشمی","c":"کوثر","t":"سواپ","s":"a","f":"","e":"","m":""},{"n":"داودمحمدی - سخندان","c":"کوثر","t":"سواپ","s":"a","f":"","e":"","m":""},{"n":"کارن دهقان","c":"کاظمی","t":"سواپ","s":"a","f":"","e":"","m":""},{"n":"امیرباقری-عبدالله زادگان","c":"نصرآبادی","t":"سواپ","s":"a","f":"","e":"","m":""},{"n":"شکوهی-یوسفی","c":"کاظمی","t":"نگهداری","s":"a","f":"","e":"","m":""},{"n":"عزیزی-غفوری","c":"نصرآبادی","t":"نگهداری","s":"a","f":"","e":"","m":""},{"n":"پرهام","c":"محور","t":"کانفیگ","s":"a","f":"","e":"","m":""},{"n":"قاسمی","c":"محور","t":"کانفیگ","s":"a","f":"","e":"","m":""},{"n":"عادل پویا","c":"کاظمی","t":"سواپ","s":"a","f":"","e":"","m":""},{"n":"کریمی- نصیری- ارکانی","c":"کاظمی","t":"سواپ","s":"a","f":"","e":"","m":""},{"n":"باقری","c":"نصرآبادی","t":"سواپ","s":"r","f":"2026-10-10","e":"2026-10-22","m":"امیرباقری-عبدالله زادگان"},{"n":"اسفندیاری","c":"نصرآبادی","t":"سواپ","s":"a","f":"","e":"","m":""},{"n":"نعمتیان","c":"کاظمی","t":"سواپ","s":"r","f":"","e":"2026-10-20","m":""},{"n":"عرفان","c":"محور","t":"کانفیگ","s":"a","f":"","e":"","m":""},{"n":"طهماسبی","c":"محور","t":"کانفیگ","s":"a","f":"","e":"","m":""},{"n":"رضوی","c":"کوثر","t":"سواپ","s":"a","f":"","e":"","m":""},{"n":"عبدالله زادگان","c":"نصرآبادی","t":"سواپ","s":"r","f":"2026-10-10","e":"2026-10-22","m":"امیرباقری-عبدالله زادگان"}];
+const BB=["بهادر اصفهانی"],cfgOnly=n=>CREWS.some(c=>c.n===n&&c.t==="کانفیگ");
 const CEN=["کاظمی","کوثر","نصرآبادی","محور"],KT=["قطعی فیبر","خرابی اسپلایس","خرابی اسپلیتر","خرابی FAT","سایر"];
 const COUNTS=["داخلی","بیرونی","فیوژن","کانفیگ"];
 const MAT=["کابل 2 کر داخلی","کابل 2 کر بیرونی","کابل 4 کر بیرونی","اسپلیتر 1:2","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:16","اسپلیتر 1:32","پیگتیل","آداپتور تکی","آداپتور دوبل","FAT 12","FAT 24","FAT 48","مودم Q2","مودم تک پورت","مودم دو پورت"];
 const mt=k=>/^کابل \d کر/.test(k)?k+" (متر)":k,TA=MAT.map(mt);
 const B=["میکروداکت 4 کاناله","میکروداکت 7 کاناله","میکرو فیبر 12","میکرو فیبر 24","میکروفیبر 48","میکروفیبر 72","کابل 12 خاکی","کابل 24 خاکی","کابل 48 خاکی","کابل 72 خاکی","کابل 144 خاکی","کابل 12 کانالی","کابل 24 کانالی","کابل 48 کانالی","کابل 72 کانالی","کابل 144 کانالی","مفصل 12","مفصل 24","مفصل 48","مفصل 72","مفصل 144","سابداکت","لوله پلی اتیلن","لوله پست","FAT 12 (بهادر/سجاد)","FAT 24 (بهادر/سجاد)","FAT 48 (بهادر/سجاد)"];
-const MK=TA.concat(["لوله پست","رزرو 1","رزرو 2"],B.slice(0,23)),SAJ=["پیگتیل","FAT 12","FAT 24","FAT 48","لوله پست","رزرو 1","رزرو 2"];
+const MK=TA.concat(["لوله پست","رزرو 1","رزرو 2"],B.slice(0,23)),SAJ=MK,BT=TA.filter(k=>!/^FAT \d+$/.test(k)).concat(B);
 const PREF=["پیگتیل","FAT 48","کابل 2 کر بیرونی (متر)","آداپتور تکی","آداپتور دوبل","کابل 2 کر داخلی (متر)","اسپلیتر 1:4","اسپلیتر 1:8","اسپلیتر 1:2","اسپلیتر 1:16","مودم Q2","مودم تک پورت","مودم دو پورت"];
 const RS=["بارندگی/شرایط جوی","تعطیلی","نبود متریال","نبود مجوز/هماهنگی","مرخصی/غیبت نیرو","خرابی خودرو/تجهیزات","عدم ارائه آمار","سایر"];
 const FM={ops:"ورودی گوگل عملیات",tah:"ورودی گوگل تحویلی",mar:"ورودی گوگل خرید مرکزی",saj:"ورودی گوگل سجاد",kh:"ورودی گوگل خرابی"};
-const NOTE="توضیحات- علت عدم انجام کار",TN={ops:"عملکرد روزانه",zero:"بدون‌کار",kh:"خرابی",tah:"تحویلی اکیپ",mar:"خرید مرکزی",saj:"مصرفی سجاد"};
+const NOTE="توضیحات- علت عدم انجام کار",TN={ops:"عملکرد روزانه",zero:"بدون‌کار",kh:"خرابی",tah:"تحویلی اکیپ",mar:"خرید مرکزی",saj:"مصرفی بهادر"};
 //--UI
 const $=(s,e=document)=>e.querySelector(s),el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
 const U=new URLSearchParams(location.search).get("u")||"",TB={j:["ops","zero","kh"],n:["tah","mar"],b:["saj"]},tabs=TB[U]||Object.keys(TN);
-const teams=()=>{if(wd()>=CUT)return TEAMS;const o=[];TEAMS.forEach(t=>{if(t==="باقری")o.push(OLDC);else if(t!=="عبدالله زادگان")o.push(t)});return o},teamsT=()=>teams().concat(BB);
+const teams=()=>{const d=wd(),td=iso(T0);return CREWS.filter(c=>(!c.f||d>=c.f)&&(!c.e||d<=c.e)&&(d<td||c.s==="a")).map(c=>c.n)},teamsT=()=>teams().concat(BB);
 const BALE=!!(window.Bale&&window.Bale.WebApp),app=$("#app"),go=$("#go"),ov=$("#ov"),S={};let tab=tabs[0],W=0;
 if(!BALE)$("#off").style.display="block";
-const CUT="2026-10-10",OLDC="امیرباقری"; /* از این تاریخ (۱۸ مهر ۱۴۰۵، شامل امروز)، «امیرباقری-عبدالله زادگان» دو اکیپ جدا (باقری، عبدالله زادگان) می‌شود */
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const fmt=(d,o)=>{try{return new Intl.DateTimeFormat("fa-IR-u-ca-persian",o).format(d)}catch(e){return iso(d)}};
 const T0=new Date(),T1=new Date(T0.getTime()-864e5),wdt=()=>W?T1:T0,wd=()=>iso(wdt());
@@ -115,7 +115,7 @@ function vOps(){
   const keep=getVals(app),d=getDone();app.innerHTML="";
   app.append(el("h3",0,"اکیپ"),chips(teams(),S.crew,t=>{S.crew=t;S.all=0;V()},d));
   if(!S.crew)return setGo("");
-  const cfg=CFG_ONLY.includes(S.crew)&&!S.all,box=el("div","card");
+  const cfg=cfgOnly(S.crew)&&!S.all,box=el("div","card");
   box.append(grid(cfg?["کانفیگ"]:COUNTS));
   if(cfg){const m=el("button","lnk","نمایش همه‌ی فیلدها");m.type="button";m.onclick=()=>{S.all=1;V()};box.append(m)}
   else box.append(el("h4",0,"متریال مصرفی"),grid(MAT));
@@ -164,7 +164,7 @@ function vPick(kind){
   if(kind==="tah"){
     app.append(el("h3",0,"اکیپ"),chips(teamsT(),S.team,t=>{S.team=t;S.it=[];V()}));
     if(!S.team)return setGo("");
-    const b=BB.includes(S.team);keys=b?B:TA;pref=b?B.slice(23):PREF;ex={"نام اکیپ":S.team};form=FM.tah;title="تحویل به "+S.team;
+    const b=BB.includes(S.team);keys=b?BT:TA;pref=b?PREF.filter(k=>BT.includes(k)).concat(B.slice(23)):PREF;ex={"نام اکیپ":S.team};form=FM.tah;title="تحویل به "+S.team;
   }
   S.it=S.it||[];
   const box=el("div","card");box.append(el("h4",0,"اقلام این ثبت"));
@@ -183,15 +183,18 @@ function vPick(kind){
 }
 
 function vSaj(){
-  app.innerHTML="";const box=el("div","card");box.append(el("h4",0,"مصرفی سجاد محمد نژاد"),grid(SAJ));const nt=note();box.append(nt);
+  app.innerHTML="";const box=el("div","card");
+  const who=el("select");who.style.cssText="width:100%;padding:10px;margin:8px 0 12px;border-radius:10px;font:inherit";
+  BB.forEach(n=>{const o=el("option");o.value=n;o.textContent=n;who.append(o)});
+  box.append(el("h4",0,"مصرفی بهادر"),who,grid(SAJ));const nt=note();box.append(nt);
   const nz=el("button","lnk","امروز مصرفی نداشتم");nz.type="button";
-  nz.onclick=()=>{const f={"نام اکیپ":"سجاد محمد نژاد"};SAJ.forEach(k=>f[k]="0");f["توضیحات"]="بدون مصرف";confirmSend("بدون مصرف",["امروز مصرفی نداشتم"],FM.saj,f,0,()=>V())};
+  nz.onclick=()=>{const f={"نام اکیپ":who.value};SAJ.forEach(k=>f[k]="0");f["توضیحات"]="بدون مصرف";confirmSend("بدون مصرف "+who.value,["امروز مصرفی نداشتم"],FM.saj,f,0,()=>V())};
   box.append(nz);app.append(box);
   setGo("بررسی و ارسال",()=>{
-    const v=getVals(box),f={"نام اکیپ":"سجاد محمد نژاد"};SAJ.forEach(k=>f[k]=String(v[k]||0));f["توضیحات"]=nt.value.trim();
+    const v=getVals(box),f={"نام اکیپ":who.value};SAJ.forEach(k=>f[k]=String(v[k]||0));f["توضیحات"]=nt.value.trim();
     if(!SAJ.some(k=>v[k]>0))return alert("همه‌ی اعداد صفره.");
     if(big(v))return alert("یک عدد بیش از حد بزرگه.");
-    confirmSend("مصرفی سجاد",lines(v),FM.saj,f,0,()=>V());
+    confirmSend("مصرفی "+who.value,lines(v),FM.saj,f,0,()=>V());
   });
 }
 
@@ -207,7 +210,7 @@ function V(){
 /* ویرایش/ابطال: فقط با لینک دکمه‌ی پیام رسیدِ ربات برای ادمین باز می‌شود؛ سرور هم فقط چت ادمین را می‌پذیرد */
 const AQ=new URLSearchParams(location.search),ACT=AQ.get("act");let AD=null;
 try{let x=AQ.get("d").replace(/-/g,"+").replace(/_/g,"/");x+="=".repeat((4-x.length%4)%4);AD=JSON.parse(decodeURIComponent(escape(atob(x))))}catch(e){}
-const FK=(f,v)=>f===FM.ops?COUNTS.concat(MAT):f===FM.tah?(BB.includes(v["نام اکیپ"])?B:TA):f===FM.mar?MK:f===FM.saj?SAJ:["تعداد"];
+const FK=(f,v)=>f===FM.ops?COUNTS.concat(MAT):f===FM.tah?(BB.includes(v["نام اکیپ"])?BT:TA):f===FM.mar?MK:f===FM.saj?SAJ:["تعداد"];
 const IDK=["نام اکیپ","مرکز","نوع خرابی"];
 function vAdmin(){
   $(".dt").style.display="none";$("#nav").style.display="none";
@@ -238,6 +241,8 @@ function vAdmin(){
     });
   }
 }
-if(ACT&&AD)vAdmin();else V();
+if(ACT&&AD)vAdmin();else{V();
+/* فهرست زنده‌ی اکیپ‌ها: اگر در دسترس بود جایگزین نسخه‌ی پشتیبانِ داخل فرم می‌شود؛ اگر نه، همان پشتیبان کار می‌کند */
+try{fetch("crews.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&Array.isArray(j.crews)&&j.crews.length){CREWS=j.crews;V()}}).catch(()=>{})}catch(e){}}
 })();
 </script></body></html>
